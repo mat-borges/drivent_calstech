@@ -13,6 +13,10 @@ export type ViaCEPAddress = {
 
 export type ViaCEPAddressData = Omit<ViaCEPAddress, "localidade"> & { cidade: string };
 
+export type ViaCEPAddressError = {
+  erro: boolean;
+};
+
 export type RequestError = {
   status: number;
   data: object | null;
