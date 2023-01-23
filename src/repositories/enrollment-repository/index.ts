@@ -1,5 +1,5 @@
-import { prisma } from "@/config";
 import { Enrollment } from "@prisma/client";
+import { prisma } from "@/config";
 
 async function findWithAddressByUserId(userId: number) {
   return prisma.enrollment.findFirst({
