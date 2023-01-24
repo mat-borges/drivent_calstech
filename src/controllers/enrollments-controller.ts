@@ -1,6 +1,6 @@
 import { AuthenticatedRequest } from "@/middlewares";
-import enrollmentsService from "@/services/enrollments-service";
 import { Response } from "express";
+import enrollmentsService from "@/services/enrollments-service";
 import httpStatus from "http-status";
 
 export async function getEnrollmentByUser(req: AuthenticatedRequest, res: Response) {

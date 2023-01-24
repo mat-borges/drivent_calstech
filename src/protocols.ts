@@ -9,7 +9,12 @@ export type ViaCEPAddress = {
   bairro: string,
   localidade: string,
   uf: string,
+};
 
+export type ViaCEPAddressData = Omit<ViaCEPAddress, "localidade"> & { cidade: string };
+
+export type ViaCEPAddressError = {
+  erro: boolean;
 };
 
 export type AddressEnrollment = {
