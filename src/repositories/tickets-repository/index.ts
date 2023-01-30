@@ -38,10 +38,17 @@ function newTicket(ticketTypeId: number, enrollmentId: number) {
   });
 }
 
+function findTicketById(ticketId: number) {
+  return prisma.ticket.findUnique({
+    where: { id: ticketId },
+  });
+}
+
 const ticketsRepository = {
   getTicketsTypes,
   getUserTickets,
   newTicket,
+  findTicketById,
 };
 
 export default ticketsRepository;

@@ -8,6 +8,19 @@ function getPaymentByTicketId(ticketId: number) {
   });
 }
 
+function getPaymentOfUser(userId: number, ticketId: number) {
+  return prisma.payment.findFirst({
+    where: {
+      Ticket: {
+        id: ticketId,
+        Enrollment: {
+          User: { id: userId },
+        },
+      },
+    },
+  });
+}
+
 function issuePayment(ticketId: number, value: number, cardIssuer: string, cardLastDigits: string) {
   return prisma.payment.create({
     data: {
@@ -22,6 +35,7 @@ function issuePayment(ticketId: number, value: number, cardIssuer: string, cardL
 const paymentsRepository = {
   getPaymentByTicketId,
   issuePayment,
+  getPaymentOfUser,
 };
 
 export default paymentsRepository;
