@@ -1,4 +1,5 @@
-import { TicketType } from "@prisma/client";
+import { Ticket, TicketType } from "@prisma/client";
+
 import ticketsRepository from "@/repositories/tickets-repository";
 
 async function getTicketsTypes(): Promise<TicketType[]> {
@@ -6,6 +7,11 @@ async function getTicketsTypes(): Promise<TicketType[]> {
   return ticketTypes;
 }
 
-const ticketsService = { getTicketsTypes };
+async function getUserTickets(userId: number): Promise<Ticket[]> {
+  const userTickets = await ticketsRepository.getUserTickets(userId);
+  return userTickets;
+}
+
+const ticketsService = { getTicketsTypes, getUserTickets };
 
 export default ticketsService;
