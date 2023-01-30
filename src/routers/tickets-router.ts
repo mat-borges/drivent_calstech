@@ -1,4 +1,4 @@
-import { getTicketsTypes, getUserTickets } from "@/controllers/tickets-controller";
+import { createUserTicket, getTicketsTypes, getUserTickets } from "@/controllers/tickets-controller";
 
 import { Router } from "express";
 import { authenticateToken } from "@/middlewares";
@@ -9,6 +9,6 @@ ticketsRouter
   .use(authenticateToken)
   .get("/tickets/types", getTicketsTypes)
   .get("/tickets", getUserTickets)
-  .post("/tickets");
+  .post("/tickets", createUserTicket);
 
 export { ticketsRouter };
