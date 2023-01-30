@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import "express-async-errors";
 
-import { authenticationRouter, enrollmentsRouter, eventsRouter, usersRouter } from "@/routers";
+import { authenticationRouter, enrollmentsRouter, eventsRouter, ticketsRouter, usersRouter } from "@/routers";
 import { connectDb, disconnectDB, loadEnv } from "@/config";
 import express, { Express } from "express";
 
@@ -19,7 +19,8 @@ app
   .use("/auth", authenticationRouter)
   .use("/event", eventsRouter)
   .use("/enrollments", enrollmentsRouter)
-  .use(handleApplicationErrors);
+  .use(handleApplicationErrors)
+  .use(ticketsRouter);
 
 export function init(): Promise<Express> {
   connectDb();
