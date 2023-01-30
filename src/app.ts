@@ -1,7 +1,14 @@
 import "reflect-metadata";
 import "express-async-errors";
 
-import { authenticationRouter, enrollmentsRouter, eventsRouter, ticketsRouter, usersRouter } from "@/routers";
+import {
+  authenticationRouter,
+  enrollmentsRouter,
+  eventsRouter,
+  paymentsRouter,
+  ticketsRouter,
+  usersRouter,
+} from "@/routers";
 import { connectDb, disconnectDB, loadEnv } from "@/config";
 import express, { Express } from "express";
 
@@ -20,7 +27,8 @@ app
   .use("/event", eventsRouter)
   .use("/enrollments", enrollmentsRouter)
   .use(handleApplicationErrors)
-  .use(ticketsRouter);
+  .use(ticketsRouter)
+  .use(paymentsRouter);
 
 export function init(): Promise<Express> {
   connectDb();
