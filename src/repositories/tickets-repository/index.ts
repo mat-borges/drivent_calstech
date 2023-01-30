@@ -17,7 +17,7 @@ function getUserTickets(userId: number): PrismaPromise<Ticket & { TicketType: Ti
   });
 }
 
-function newTicket(ticketTypeId: number, enrollmentId: number) {
+function newTicket(ticketTypeId: number, enrollmentId: number): PrismaPromise<Ticket & { TicketType: TicketType }> {
   return prisma.ticket.create({
     data: {
       status: TicketStatus.RESERVED,
@@ -38,9 +38,32 @@ function newTicket(ticketTypeId: number, enrollmentId: number) {
   });
 }
 
-function findTicketById(ticketId: number) {
+function findTicketById(ticketId: number): PrismaPromise<Ticket & { TicketType: TicketType }> {
   return prisma.ticket.findUnique({
     where: { id: ticketId },
+    include: { TicketType: true },
+  });
+}
+
+function updateTicketStatus(ticketId: number) {
+  return prisma.ticket.update({
+    where: { id: ticketId },
+    data: {
+      status: TicketStatus.PAID,
+    },
+    include: { TicketType: true },
+  });
+}
+
+function chekTicketUserRelation(userId: number, ticketId: number) {
+  return prisma.ticket.findFirst({
+    where: {
+      id: ticketId,
+      Enrollment: {
+        User: { id: userId },
+      },
+    },
+    include: { TicketType: true },
   });
 }
 
@@ -49,6 +72,8 @@ const ticketsRepository = {
   getUserTickets,
   newTicket,
   findTicketById,
+  updateTicketStatus,
+  chekTicketUserRelation,
 };
 
 export default ticketsRepository;
