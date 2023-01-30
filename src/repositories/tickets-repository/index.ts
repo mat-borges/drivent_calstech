@@ -6,18 +6,34 @@ function getTicketsTypes(): PrismaPromise<TicketType[]> {
   return prisma.ticketType.findMany();
 }
 
-function getUserTickets(id: number): PrismaPromise<Ticket[]> {
-  return prisma.ticket.findMany({
-    where: { enrollmentId: id },
+function getUserTickets(userId: number): PrismaPromise<Ticket & { TicketType: TicketType }> {
+  return prisma.ticket.findFirst({
+    where: {
+      Enrollment: { userId },
+    },
+    include: {
+      TicketType: true,
+    },
   });
 }
 
-function newTicket(ticketTypeId: number, enrollmentId: number, status: TicketStatus) {
+function newTicket(ticketTypeId: number, enrollmentId: number) {
   return prisma.ticket.create({
     data: {
-      ticketTypeId,
-      enrollmentId,
-      status,
+      status: TicketStatus.RESERVED,
+      TicketType: {
+        connect: {
+          id: ticketTypeId,
+        },
+      },
+      Enrollment: {
+        connect: {
+          id: enrollmentId,
+        },
+      },
+    },
+    include: {
+      TicketType: true,
     },
   });
 }
