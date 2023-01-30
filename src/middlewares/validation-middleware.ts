@@ -1,7 +1,8 @@
-import { invalidDataError } from "@/errors";
 import { NextFunction, Request, Response } from "express";
-import httpStatus from "http-status";
+
 import { ObjectSchema } from "joi";
+import httpStatus from "http-status";
+import { invalidDataError } from "@/errors";
 
 export function validateBody<T>(schema: ObjectSchema<T>): ValidationMiddleware {
   return validate(schema, "body");
@@ -25,4 +26,4 @@ function validate(schema: ObjectSchema, type: "body" | "params") {
   };
 }
 
-type ValidationMiddleware = (req: Request, res: Response, next: NextFunction)=> void;
+type ValidationMiddleware = (req: Request, res: Response, next: NextFunction) => void;
