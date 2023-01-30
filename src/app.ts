@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import "express-async-errors";
-import express, { Express } from "express";
-import cors from "cors";
 
-import { loadEnv, connectDb, disconnectDB } from "@/config";
+import { authenticationRouter, enrollmentsRouter, eventsRouter, usersRouter } from "@/routers";
+import { connectDb, disconnectDB, loadEnv } from "@/config";
+import express, { Express } from "express";
+
+import cors from "cors";
+import { handleApplicationErrors } from "@/middlewares";
 
 loadEnv();
-
-import { handleApplicationErrors } from "@/middlewares";
-import { usersRouter, authenticationRouter, eventsRouter, enrollmentsRouter } from "@/routers";
 
 const app = express();
 app
