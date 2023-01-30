@@ -32,7 +32,7 @@ export async function getUserTickets(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function createUserTicket(req: AuthenticatedRequest, res: Response) {
-  const { ticketTypeId } = req.body as { ticketTypeId: number };
+  const { ticketTypeId } = req.body as CreateTicketBody;
 
   if (!ticketTypeId) return res.sendStatus(httpStatus.BAD_REQUEST);
 
@@ -47,3 +47,5 @@ export async function createUserTicket(req: AuthenticatedRequest, res: Response)
     }
   }
 }
+
+export type CreateTicketBody = { ticketTypeId: number };
