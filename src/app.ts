@@ -26,9 +26,9 @@ app
   .use("/auth", authenticationRouter)
   .use("/event", eventsRouter)
   .use("/enrollments", enrollmentsRouter)
-  .use(handleApplicationErrors)
-  .use(ticketsRouter)
-  .use(paymentsRouter);
+  .use("/tickets", ticketsRouter)
+  .use("/payments", paymentsRouter)
+  .use(handleApplicationErrors);
 
 export function init(): Promise<Express> {
   connectDb();
