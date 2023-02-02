@@ -14,6 +14,7 @@ import express, { Express } from "express";
 
 import cors from "cors";
 import { handleApplicationErrors } from "@/middlewares";
+import hotelsRouter from "./routers/hotels-router";
 
 loadEnv();
 
@@ -28,6 +29,7 @@ app
   .use("/enrollments", enrollmentsRouter)
   .use("/tickets", ticketsRouter)
   .use("/payments", paymentsRouter)
+  .use("/hotels", hotelsRouter)
   .use(handleApplicationErrors);
 
 export function init(): Promise<Express> {
