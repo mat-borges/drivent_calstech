@@ -89,5 +89,3 @@ const enrollmentsService = {
 };
 
 export default enrollmentsService;
-
-export default enrollmentsService;
