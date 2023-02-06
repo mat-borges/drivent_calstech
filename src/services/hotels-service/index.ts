@@ -1,5 +1,7 @@
+import hotelRepository, { HotelWithRooms } from "@/repositories/hotels-repository";
+
+import { Hotel } from "@prisma/client";
 import enrollmentRepository from "@/repositories/enrollment-repository";
-import hotelRepository from "@/repositories/hotels-repository";
 import { notFoundError } from "@/errors";
 import ticketsRepository from "@/repositories/tickets-repository";
 
@@ -9,16 +11,15 @@ async function checkEnrollmentAndTicketType(userId: number) {
 
   const ticket = await ticketsRepository.getUserTickets(userId);
   if (!ticket) throw notFoundError();
-
-  if (ticket.status !== "PAID") throw { name: "PaymentRequired", message: "Your ticket hasn't been paid yet." };
+  if (ticket.status !== "PAID") {
+    throw { name: "PaymentRequired", message: "Your ticket hasn't been paid yet." };
+  }
   if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw { name: "PaymentRequired", message: "Your ticket doesn't include hotel." };
   }
 }
 
-async function getHotels(userId: number) {
-  checkEnrollmentAndTicketType(userId);
-
+async function getHotels(): Promise<Hotel[]> {
   const hotels = await hotelRepository.getHotels();
   if (!hotels || hotels.length === 0) {
     throw notFoundError();
@@ -27,9 +28,7 @@ async function getHotels(userId: number) {
   }
 }
 
-async function getHotelRooms(hotelId: number, userId: number) {
-  checkEnrollmentAndTicketType(userId);
-
+async function getHotelRooms(hotelId: number): Promise<HotelWithRooms> {
   const rooms = await hotelRepository.getHotelRooms(hotelId);
   if (!rooms || rooms.Rooms.length === 0) {
     throw notFoundError();
@@ -39,6 +38,7 @@ async function getHotelRooms(hotelId: number, userId: number) {
 }
 
 const hotelsService = {
+  checkEnrollmentAndTicketType,
   getHotels,
   getHotelRooms,
 };
