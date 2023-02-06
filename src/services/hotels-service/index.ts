@@ -30,7 +30,7 @@ async function getHotels(): Promise<Hotel[]> {
 
 async function getHotelRooms(hotelId: number): Promise<HotelWithRooms> {
   const rooms = await hotelRepository.getHotelRooms(hotelId);
-  if (!rooms || rooms.Rooms.length === 0) {
+  if (!rooms || rooms.Rooms?.length === 0) {
     throw notFoundError();
   } else {
     return rooms;
