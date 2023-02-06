@@ -1,6 +1,6 @@
+import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import faker from "@faker-js/faker";
-import { User } from "@prisma/client";
 import { prisma } from "@/config";
 
 export async function createUser(params: Partial<User> = {}): Promise<User> {
