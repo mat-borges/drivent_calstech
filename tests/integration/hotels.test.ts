@@ -2,8 +2,16 @@ import * as jwt from "jsonwebtoken";
 
 import app, { init } from "@/app";
 import { cleanDb, generateValidToken } from "../helpers";
+import {
+  createEnrollmentWithAddress,
+  createSpecificTicketType,
+  createTicket,
+  createTicketType,
+  createUser,
+} from "../factories";
+import { createHotel, createHotelRooms } from "../factories/hotels-factory";
 
-import { createUser } from "../factories";
+import { TicketStatus } from "@prisma/client";
 import faker from "@faker-js/faker";
 import httpStatus from "http-status";
 import supertest from "supertest";
@@ -49,20 +57,95 @@ describe("GET /hotels", () => {
 
       const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
-    //  it("should respond with status 404 if user doesn't own a ticket");
+    it("should respond with status 404 if user doesn't own a ticket", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      await createEnrollmentWithAddress(user);
 
-    //  it("should respond with status 402 if ticket is not PAID");
+      const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
 
-    //  it("should respond with status 402 if ticket type is remote");
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
 
-    //  it("should respond with status 402 if ticket type doesn't include hotel");
+    it("should respond with status 402 if ticket is not PAID", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketType();
 
-    //  it("should respond with status 404 if there are no hotels");
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.RESERVED);
 
-    //  it("should respond with status 200 and a list of hotels");
+      const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
+    it("should respond with status 402 if ticket type is remote", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: true, includesHotel: false });
+
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+
+      const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
+    it("should respond with status 402 if ticket type doesn't include hotel", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: false, includesHotel: false });
+
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+
+      const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
+    it("should respond with status 404 if there are no hotels", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: false, includesHotel: true });
+
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+
+      const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
+
+    it("should respond with status 200 and a list of hotels", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: false, includesHotel: true });
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+      await createHotel();
+      await createHotel();
+
+      const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: expect.any(Number),
+            name: expect.any(String),
+            image: expect.any(String),
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+          }),
+        ]),
+      );
+    });
   });
 });
 
@@ -97,19 +180,103 @@ describe("GET hotels/:hotelId", () => {
 
       const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
-    //     it("should respond with status 404 if user doesn't own a ticket");
+    it("should respond with status 404 if user doesn't own a ticket", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      await createEnrollmentWithAddress(user);
 
-    //     it("should respond with status 402 if ticket is not PAID");
+      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
 
-    //     it("should respond with status 402 if ticket type is remote");
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
 
-    //     it("should respond with status 402 if ticket type doesn't include hotel");
+    it("should respond with status 402 if ticket is not PAID", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketType();
 
-    //     it("should respond with status 404 if there are no rooms");
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.RESERVED);
 
-    //     it("should respond with status 200 and a list of rooms");
+      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
+    it("should respond with status 402 if ticket type is remote", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: true, includesHotel: false });
+
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+
+      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
+    it("should respond with status 402 if ticket type doesn't include hotel", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: false, includesHotel: false });
+
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+
+      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+    });
+
+    it("should respond with status 404 if there are no rooms", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: false, includesHotel: true });
+
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+
+      const response = await server.get("/hotels/1").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
+
+    it("should respond with status 200 and a list of rooms", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const userEnrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createSpecificTicketType({ isRemote: false, includesHotel: true });
+      await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
+      const hotel = await createHotel();
+      await createHotelRooms(hotel.id);
+      await createHotelRooms(hotel.id);
+
+      const response = await server.get(`/hotels/${hotel.id}`).set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: expect.any(Number),
+          name: expect.any(String),
+          image: expect.any(String),
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          Rooms: expect.arrayContaining([
+            expect.objectContaining({
+              id: expect.any(Number),
+              name: expect.any(String),
+              capacity: expect.any(Number),
+              hotelId: expect.any(Number),
+              createdAt: expect.any(String),
+              updatedAt: expect.any(String),
+            }),
+          ]),
+        }),
+      );
+    });
   });
 });
