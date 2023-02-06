@@ -1,19 +1,21 @@
-import app, { init } from "@/app";
-import { prisma } from "@/config";
-import faker from "@faker-js/faker";
-import { TicketStatus } from "@prisma/client";
-import httpStatus from "http-status";
 import * as jwt from "jsonwebtoken";
-import supertest from "supertest";
+
+import app, { init } from "@/app";
+import { cleanDb, generateValidToken } from "../helpers";
 import {
   createEnrollmentWithAddress,
-  createUser,
-  createTicketType,
-  createTicket,
   createPayment,
+  createTicket,
+  createTicketType,
+  createUser,
   generateCreditCardData,
 } from "../factories";
-import { cleanDb, generateValidToken } from "../helpers";
+
+import { TicketStatus } from "@prisma/client";
+import faker from "@faker-js/faker";
+import httpStatus from "http-status";
+import { prisma } from "@/config";
+import supertest from "supertest";
 
 beforeAll(async () => {
   await init();
